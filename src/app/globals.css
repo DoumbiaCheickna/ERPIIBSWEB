@@ -1,0 +1,76 @@
+/* Fichier //src/app/globals.css*/
+/* Force le primaire partout */
+:root{
+  --bs-primary: #029DFC;
+  --bs-primary-rgb: 2,157,252;
+  --bs-link-color: #029DFC;
+  --bs-link-hover-color: #0186d8;
+}
+
+/* Bouton plein */
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary:disabled {
+  background-color: #029DFC !important;
+  border-color: #029DFC !important;
+}
+
+/* Bouton outline */
+.btn-outline-primary{
+  color: #029DFC !important;
+  border-color: #029DFC !important;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  background-color: #029DFC !important;
+  border-color: #029DFC !important;
+  color: #fff !important;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  content: ">";
+  padding-right: .3rem;
+}
+.modal-backdrop { z-index: 1990 !important; }
+.modal          { z-index: 2000 !important; }

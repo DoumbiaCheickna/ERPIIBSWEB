@@ -1,0 +1,36 @@
+{
+  "name": "erp-gestion-etablissement-scolaire-iibs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "echo \"lint skipped on Render\""
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.7",
+    "bootstrap-icons": "^1.13.1",
+    "chart.js": "^4.5.0",
+    "firebase": "^12.1.0",
+    "firebase-admin": "^13.4.0",
+    "html-to-image": "^1.11.13",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
+    "next": "15.4.6",
+    "react": "19.1.0",
+    "react-bootstrap": "^2.10.10",
+    "react-dom": "19.1.0",
+    "recharts": "^3.1.2",
+    "sharp": "^0.34.4"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.4.6",
+    "typescript": "^5"
+  }
+}
