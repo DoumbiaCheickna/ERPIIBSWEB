@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../../../../firebaseConfig';
 
-/* === Auth (secondary app pour ne pas déconnecter l’admin) === */
+/* === Auth (secondary app pour ne pas déconnecter l'admin) === */
 import { getApp, getApps, initializeApp, FirebaseOptions } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, updateProfile, signOut } from 'firebase/auth';
 
@@ -28,9 +28,9 @@ interface StudentFormProps {
   fetchData: () => Promise<void>;
   onCreated?: (id: string) => void;
 
-  /** Année académique par défaut (libellé) pour l’affichage */
+  /** Année académique par défaut (libellé) pour l'affichage */
   defaultAnnee?: string;
-  /** ID Firestore de l’année académique (clé utilisée pour les requêtes) */
+  /** ID Firestore de l'année académique (clé utilisée pour les requêtes) */
   defaultYearId?: string;
 
   /** Contexte classe (pré-remplissage depuis EtudiantsPage) */
@@ -157,7 +157,6 @@ const DEFAULT_PARTENAIRES: { id: string; libelle: string }[] = [
   { id: 'AUTRE', libelle: 'Autres' },
 ];
 
-
 export default function StudentForm({
   roles = [],
   niveaux = [],
@@ -211,12 +210,11 @@ export default function StudentForm({
     });
   };
 
-    // si "partenaires" est vide, on utilise la liste par défaut
+  // si "partenaires" est vide, on utilise la liste par défaut
   const partnerOptions = (partenaires?.length ? [...partenaires, { id: 'AUTRE', libelle: 'Autres' }] : DEFAULT_PARTENAIRES);
 
   // suivi de la sélection du partenaire (pour gérer "Autres")
   const [bourseSelect, setBourseSelect] = useState<string>('');
-
 
   const [showPwd, setShowPwd] = useState(false);
   // Appliquer le contexte classe (préremplissage + verrouillage)
@@ -254,7 +252,7 @@ export default function StudentForm({
         setLoginAvailable(!exists);
         setErrors((prev) => {
           const c = { ...prev };
-          if (exists) c['login'] = "Ce nom d’utilisateur existe déjà.";
+          if (exists) c['login'] = "Ce nom d'utilisateur existe déjà.";
           else delete c['login'];
           return c;
         });
@@ -335,25 +333,29 @@ export default function StudentForm({
   // Validation
   const validate = async (): Promise<Errors> => {
     const err: Errors = {};
-    // base
+    
+    // 1. Informations de base (déjà obligatoires)
     if (!f.role_id) err['role_id'] = 'Sélectionnez un rôle.';
     if (!f.prenom || sanitize(f.prenom).length < 2) err['prenom'] = 'Min. 2 caractères.';
     if (!f.nom || sanitize(f.nom).length < 2) err['nom'] = 'Min. 2 caractères.';
     if (!f.email || !emailRegex.test(f.email)) err['email'] = 'Email invalide.';
-    if (!f.login) err['login'] = "Nom d’utilisateur requis.";
+    if (!f.login) err['login'] = "Nom d'utilisateur requis.";
     if (!f.password) err['password'] = 'Mot de passe requis.';
+    
+    // 2. Informations personnelles (déjà obligatoires)
     if (!f.sexe) err['sexe'] = 'Obligatoire.';
     if (!f.date_naissance) err['date_naissance'] = 'Obligatoire.';
     if (!f.lieu_naissance) err['lieu_naissance'] = 'Obligatoire.';
     if (!f.nationalite) err['nationalite'] = 'Obligatoire.';
     if (!f.cni_passeport) err['cni_passeport'] = 'Obligatoire.';
-    else if (onlyDigits(f.cni_passeport) !== f.cni_passeport) err['cni_passeport'] = 'Chiffres uniquement.';
-    // coordonnées
     if (!f.adresse) err['adresse'] = 'Obligatoire.';
+    
+    // Téléphone (déjà obligatoire)
     if (!f.telephone) err['telephone'] = 'Obligatoire.';
     else if (!phoneRegex.test(f.telephone))
       err['telephone'] = 'Format: 9 chiffres commençant par 70/75/76/77/78.';
-    // académiques
+    
+    // 3. Informations académiques (déjà obligatoires)
     if (!f.matricule) err['matricule'] = 'Obligatoire.';
     else if (onlyDigits(f.matricule) !== f.matricule) err['matricule'] = 'Chiffres uniquement.';
     if (!f.niveau_id) err['niveau_id'] = 'Obligatoire.';
@@ -361,34 +363,17 @@ export default function StudentForm({
     if (!f.classe) err['classe'] = 'Classe requise.';
     if (!f.annee_academique) err['annee_academique'] = 'Obligatoire.';
     if (!f.type_inscription) err['type_inscription'] = 'Obligatoire.';
-    // diplôme
+    
+    // 4. Diplôme obtenu (maintenant obligatoire)
     if (!f.diplome_obtenu.serie) err['diplome_obtenu.serie'] = 'Obligatoire.';
     if (!f.diplome_obtenu.annee_obtention) err['diplome_obtenu.annee_obtention'] = 'Obligatoire.';
     if (!f.diplome_obtenu.mention) err['diplome_obtenu.mention'] = 'Obligatoire.';
-    // bourse
+    
+    // 5. Bourse (maintenant obligatoire)
+    if (!f.boursier) err['boursier'] = 'Obligatoire.';
     if (f.boursier === 'oui' && !f.bourse_fournisseur) err['bourse_fournisseur'] = 'Sélection obligatoire.';
-    // parents
-    if (!f.parents.pere.prenom || sanitize(f.parents.pere.prenom).length < 2)
-      err['parents.pere.prenom'] = 'Min. 2 caractères.';
-    if (!f.parents.pere.nom || sanitize(f.parents.pere.nom).length < 2)
-      err['parents.pere.nom'] = 'Min. 2 caractères.';
-    if (!f.parents.mere.prenom || sanitize(f.parents.mere.prenom).length < 2)
-      err['parents.mere.prenom'] = 'Min. 2 caractères.';
-    if (!f.parents.mere.nom || sanitize(f.parents.mere.nom).length < 2)
-      err['parents.mere.nom'] = 'Min. 2 caractères.';
-    // urgence
-    if (!f.parents.contact_urgence.relation)
-      err['parents.contact_urgence.relation'] = 'Obligatoire.';
-    if (!f.parents.contact_urgence.adresse)
-      err['parents.contact_urgence.adresse'] = 'Obligatoire.';
-    if (f.parents.contact_urgence.relation === 'Autre') {
-      if (!f.parents.contact_urgence.lien_autre)
-        err['parents.contact_urgence.lien_autre'] = 'Obligatoire.';
-      if (!f.parents.contact_urgence.telephone)
-        err['parents.contact_urgence.telephone'] = 'Obligatoire.';
-      else if (!phoneRegex.test(f.parents.contact_urgence.telephone))
-        err['parents.contact_urgence.telephone'] = 'Téléphone invalide.';
-    }
+
+ 
     // fichiers (facultatifs mais sûrs)
     (['copie_bac', 'copie_cni', 'releve_notes'] as const).forEach((k) => {
       const file = (f.documents as any)[k] as File | null;
@@ -398,6 +383,7 @@ export default function StudentForm({
       if (file.size > MAX_FILE_SIZE)
         err[`documents.${k}`] = 'Fichier trop volumineux (max 5 Mo).';
     });
+    
     // unicité login
     if (!err['login']) {
       const lower = f.login.toLowerCase();
@@ -405,7 +391,7 @@ export default function StudentForm({
         getDocs(query(collection(db, 'users'), where('login', '==', f.login))),
         getDocs(query(collection(db, 'users'), where('login_insensitive', '==', lower))),
       ]);
-      if (!a.empty || !b.empty) err['login'] = "Ce nom d’utilisateur existe déjà.";
+      if (!a.empty || !b.empty) err['login'] = "Ce nom d'utilisateur existe déjà.";
     }
     return err;
   };
@@ -469,9 +455,9 @@ export default function StudentForm({
         niveau_id: f.niveau_id,
         filiere_id: f.filiere_id,
 
-        // Liens d’inscription actuels
-        academic_year_id: defaultYearId || null, // <--- ID d’année pour les requêtes
-        annee_academique: f.annee_academique, // libellé pour l’affichage
+        // Liens d'inscription actuels
+        academic_year_id: defaultYearId || null, // <--- ID d'année pour les requêtes
+        annee_academique: f.annee_academique, // libellé pour l'affichage
         classe_id: f.classe_id || null,
         classe: f.classe,
 
@@ -538,7 +524,7 @@ export default function StudentForm({
       /* ========= 2) Écriture Firestore avec docId = uid ========= */
       await setDoc(doc(db, 'users', uid), { ...payload, uid });
 
-      /* ========= 3) (Optionnel) créer l’INSCRIPTION ========= */
+      /* ========= 3) (Optionnel) créer l'INSCRIPTION ========= */
       if (f.classe_id && (defaultYearId || f.annee_academique)) {
         await addDoc(collection(db, 'inscriptions'), {
           user_id: uid,
@@ -559,7 +545,7 @@ export default function StudentForm({
       if (e?.code?.startsWith?.('auth/')) {
         showErrorToast("Création dans Firebase Auth échouée.");
       } else {
-        showErrorToast("Erreur lors de l’ajout de l’étudiant.");
+        showErrorToast("Erreur lors de l'ajout de l'étudiant.");
       }
     } finally {
       setSubmitting(false);
@@ -636,7 +622,7 @@ export default function StudentForm({
 
         <div className="col-md-4">
           <label className="form-label">
-            Nom d’utilisateur<span className="text-danger">*</span>
+            Nom d'utilisateur<span className="text-danger">*</span>
           </label>
           <div className="input-group">
             <input
@@ -662,33 +648,31 @@ export default function StudentForm({
         </div>
 
         <div className="col-md-4">
-        <label className="form-label">
-          Mot de passe<span className="text-danger">*</span>
-        </label>
-
-        <div className="input-group">
-          <input
-            type={showPwd ? 'text' : 'password'}
-            className={`form-control ${errors['password'] ? 'is-invalid' : ''}`}
-            value={f.password}
-            onChange={(e) => setField('password', e.target.value)}
-            placeholder="Temporaire — sera changé au 1er login"
-            autoComplete="new-password"
-          />
-          <button
-            type="button"
-            className="btn btn-outline-secondary"
-            onClick={() => setShowPwd(s => !s)}
-            title={showPwd ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
-            aria-label={showPwd ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
-            aria-pressed={showPwd}
-          >
-            {showPwd ? <i className="bi bi-eye-slash" /> : <i className="bi bi-eye" />}
-          </button>
+          <label className="form-label">
+            Mot de passe<span className="text-danger">*</span>
+          </label>
+          <div className="input-group">
+            <input
+              type={showPwd ? 'text' : 'password'}
+              className={`form-control ${errors['password'] ? 'is-invalid' : ''}`}
+              value={f.password}
+              onChange={(e) => setField('password', e.target.value)}
+              placeholder="Temporaire — sera changé au 1er login"
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => setShowPwd(s => !s)}
+              title={showPwd ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+              aria-label={showPwd ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+              aria-pressed={showPwd}
+            >
+              {showPwd ? <i className="bi bi-eye-slash" /> : <i className="bi bi-eye" />}
+            </button>
+          </div>
+          {errors['password'] && <div className="invalid-feedback d-block">{errors['password']}</div>}
         </div>
-
-        {errors['password'] && <div className="invalid-feedback d-block">{errors['password']}</div>}
-      </div>
 
         {/* ==== Infos perso ==== */}
         <div className="col-12 mt-3">
@@ -787,7 +771,7 @@ export default function StudentForm({
             inputMode="numeric"
             className={`form-control ${errors['cni_passeport'] ? 'is-invalid' : ''}`}
             value={f.cni_passeport}
-            onChange={(e) => setField('cni_passeport', onlyDigits(e.target.value))}
+            onChange={(e) => setField('cni_passeport', e.target.value)}
           />
           {errors['cni_passeport'] && <div className="invalid-feedback">{errors['cni_passeport']}</div>}
         </div>
@@ -808,7 +792,7 @@ export default function StudentForm({
         </div>
 
         <div className="col-md-3">
-          <label className="form-label">Nombre d’enfants</label>
+          <label className="form-label">Nombre d'enfants</label>
           <input
             type="number"
             min={0}
@@ -906,7 +890,7 @@ export default function StudentForm({
 
         <div className="col-md-3">
           <label className="form-label">
-            Type d’inscription<span className="text-danger">*</span>
+            Type d'inscription<span className="text-danger">*</span>
           </label>
           <select
             className={`form-select ${errors['type_inscription'] ? 'is-invalid' : ''}`}
@@ -914,7 +898,7 @@ export default function StudentForm({
             onChange={(e) => setField('type_inscription', e.target.value)}
           >
             <option value="Nouveau">Inscription</option>
-            <option value="Redoublant">Réinscription</option>
+            <option value="Réinscription">Réinscription</option>
             <option value="Transfert">Transfert</option>
           </select>
           {errors['type_inscription'] && (
@@ -933,7 +917,7 @@ export default function StudentForm({
 
         {/* ==== Diplôme ==== */}
         <div className="col-12 mt-3">
-          <h5 className="fw-bold">Diplôme obtenu</h5>
+          <h5 className="fw-bold">Diplôme obtenu<span className="text-danger">*</span></h5>
           <hr />
         </div>
 
@@ -960,7 +944,7 @@ export default function StudentForm({
 
         <div className="col-md-4">
           <label className="form-label">
-            Année d’obtention<span className="text-danger">*</span>
+            Année d'obtention<span className="text-danger">*</span>
           </label>
           <input
             className={`form-control ${errors['diplome_obtenu.annee_obtention'] ? 'is-invalid' : ''}`}
@@ -996,16 +980,17 @@ export default function StudentForm({
 
         {/* ==== Bourse ==== */}
         <div className="col-12 mt-3">
-          <h5 className="fw-bold">Bourse</h5>
+          <h5 className="fw-bold">Bourse<span className="text-danger">*</span></h5>
           <hr />
         </div>
 
         <div className="col-md-4">
-          <label className="form-label">Boursier</label>
+          <label className="form-label">
+            Boursier<span className="text-danger">*</span>
+          </label>
           <select
-            className="form-select"
+            className={`form-select ${errors['boursier'] ? 'is-invalid' : ''}`}
             value={f.boursier}
-            // remplace l'onChange du select "Boursier" par :
             onChange={(e) => {
               const val = e.target.value as 'oui' | 'non';
               setField('boursier', val);
@@ -1015,25 +1000,26 @@ export default function StudentForm({
               }
             }}
           >
+            <option value="">Sélectionner</option>
             <option value="non">Non</option>
             <option value="oui">Oui</option>
           </select>
+          {errors['boursier'] && <div className="invalid-feedback">{errors['boursier']}</div>}
         </div>
 
         {f.boursier === 'oui' && (
           <div className="col-md-8">
-            <label className="form-label">Partenaire (obligatoire si boursier)</label>
-
-            {/* Sélecteur de partenaire (inclut "Autres") */}
+            <label className="form-label">
+              Partenaire (obligatoire si boursier)<span className="text-danger">*</span>
+            </label>
             <select
               className={`form-select ${errors['bourse_fournisseur'] ? 'is-invalid' : ''}`}
               value={bourseSelect}
               onChange={(e) => {
                 const v = e.target.value;
                 setBourseSelect(v);
-                // Si ce n'est PAS "Autres", on stocke directement la valeur choisie
                 if (v !== 'AUTRE') setField('bourse_fournisseur', v);
-                else setField('bourse_fournisseur', ''); // on attend la saisie libre
+                else setField('bourse_fournisseur', '');
               }}
             >
               <option value="">Sélectionner</option>
@@ -1041,8 +1027,6 @@ export default function StudentForm({
                 <option key={p.id} value={p.id}>{p.libelle}</option>
               ))}
             </select>
-
-            {/* Si "Autres", on affiche un champ de saisie libre */}
             {bourseSelect === 'AUTRE' && (
               <div className="mt-2">
                 <input
@@ -1053,7 +1037,6 @@ export default function StudentForm({
                 />
               </div>
             )}
-
             {errors['bourse_fournisseur'] && (
               <div className="invalid-feedback d-block">{errors['bourse_fournisseur']}</div>
             )}
@@ -1068,29 +1051,24 @@ export default function StudentForm({
 
         <div className="col-md-3">
           <label className="form-label">
-            Prénom du père<span className="text-danger">*</span>
+            Prénom du père
           </label>
           <input
-            className={`form-control ${errors['parents.pere.prenom'] ? 'is-invalid' : ''}`}
+            className="form-control"
             value={f.parents.pere.prenom}
             onChange={(e) => setField('parents.pere.prenom', e.target.value)}
           />
-          {errors['parents.pere.prenom'] && (
-            <div className="invalid-feedback">{errors['parents.pere.prenom']}</div>
-          )}
         </div>
         <div className="col-md-3">
           <label className="form-label">
-            Nom du père<span className="text-danger">*</span>
+            Nom du père
           </label>
           <input
-            className={`form-control ${errors['parents.pere.nom'] ? 'is-invalid' : ''}`}
+            className="form-control"
             value={f.parents.pere.nom}
             onChange={(e) => setField('parents.pere.nom', e.target.value)}
           />
-          {errors['parents.pere.nom'] && (
-            <div className="invalid-feedback">{errors['parents.pere.nom']}</div>
-          )}
+
         </div>
         <div className="col-md-3">
           <label className="form-label">Profession du père</label>
@@ -1118,29 +1096,24 @@ export default function StudentForm({
 
         <div className="col-md-3">
           <label className="form-label">
-            Prénom de la mère<span className="text-danger">*</span>
+            Prénom de la mère
           </label>
           <input
-            className={`form-control ${errors['parents.mere.prenom'] ? 'is-invalid' : ''}`}
+            className="form-control"
             value={f.parents.mere.prenom}
             onChange={(e) => setField('parents.mere.prenom', e.target.value)}
           />
-          {errors['parents.mere.prenom'] && (
-            <div className="invalid-feedback">{errors['parents.mere.prenom']}</div>
-          )}
+
         </div>
         <div className="col-md-3">
           <label className="form-label">
-            Nom de la mère<span className="text-danger">*</span>
+            Nom de la mère
           </label>
           <input
-            className={`form-control ${errors['parents.mere.nom'] ? 'is-invalid' : ''}`}
+            className="form-control"
             value={f.parents.mere.nom}
             onChange={(e) => setField('parents.mere.nom', e.target.value)}
           />
-          {errors['parents.mere.nom'] && (
-            <div className="invalid-feedback">{errors['parents.mere.nom']}</div>
-          )}
         </div>
         <div className="col-md-3">
           <label className="form-label">Profession de la mère</label>
@@ -1167,15 +1140,15 @@ export default function StudentForm({
         </div>
 
         <div className="col-12 mt-2">
-          <h6 className="fw-bold">Personne à contacter en cas d’urgence</h6>
+          <h6 className="fw-bold">Personne à contacter en cas d'urgence</h6>
         </div>
 
         <div className="col-md-3">
           <label className="form-label">
-            Relation<span className="text-danger">*</span>
+            Relation
           </label>
           <select
-            className={`form-select ${errors['parents.contact_urgence.relation'] ? 'is-invalid' : ''}`}
+            className="form-select"
             value={f.parents.contact_urgence.relation}
             onChange={(e) => setField('parents.contact_urgence.relation', e.target.value)}
           >
@@ -1184,9 +1157,7 @@ export default function StudentForm({
             <option value="Mère">Mère</option>
             <option value="Autre">Autre</option>
           </select>
-          {errors['parents.contact_urgence.relation'] && (
-            <div className="invalid-feedback">{errors['parents.contact_urgence.relation']}</div>
-          )}
+
         </div>
 
         {f.parents.contact_urgence.relation === 'Autre' && (
@@ -1207,16 +1178,13 @@ export default function StudentForm({
 
         <div className="col-md-6">
           <label className="form-label">
-            Adresse<span className="text-danger">*</span>
+            Adresse
           </label>
           <input
-            className={`form-control ${errors['parents.contact_urgence.adresse'] ? 'is-invalid' : ''}`}
+            className="form-control"
             value={f.parents.contact_urgence.adresse}
             onChange={(e) => setField('parents.contact_urgence.adresse', e.target.value)}
           />
-          {errors['parents.contact_urgence.adresse'] && (
-            <div className="invalid-feedback">{errors['parents.contact_urgence.adresse']}</div>
-          )}
         </div>
 
         {f.parents.contact_urgence.relation === 'Autre' && (
@@ -1240,7 +1208,7 @@ export default function StudentForm({
               />
             </div>
             {errors['parents.contact_urgence.telephone'] && (
-              <div className="invalid-feedback d-block">{errors['parents.contact_urgence.telephone']}</div>
+              <div className="invalid-feedback">{errors['parents.contact_urgence.telephone']}</div>
             )}
           </div>
         )}
@@ -1269,10 +1237,10 @@ export default function StudentForm({
               checked={f.dossier_admin.nouveau_L1.piece_identite}
               onChange={(e) => setField('dossier_admin.nouveau_L1.piece_identite', e.target.checked)}
             />
-            <label className="form-check-label">Pièce d’identité</label>
+            <label className="form-check-label">Pièce d'identité</label>
           </div>
           <div className="mt-2">
-            <label className="form-label">Frais d’inscription acquittés</label>
+            <label className="form-label">Frais d'inscription acquittés</label>
             <select
               className="form-select"
               value={f.dossier_admin.nouveau_L1.frais_inscription_ok}
@@ -1327,10 +1295,10 @@ export default function StudentForm({
               checked={f.dossier_admin.nouveau_L2_L3.piece_identite}
               onChange={(e) => setField('dossier_admin.nouveau_L2_L3.piece_identite', e.target.checked)}
             />
-            <label className="form-check-label">Pièce d’identité</label>
+            <label className="form-check-label">Pièce d'identité</label>
           </div>
           <div className="mt-2">
-            <label className="form-label">Frais d’inscription acquittés</label>
+            <label className="form-label">Frais d'inscription acquittés</label>
             <select
               className="form-select"
               value={f.dossier_admin.nouveau_L2_L3.frais_inscription_ok}
@@ -1370,7 +1338,7 @@ export default function StudentForm({
             <label className="form-check-label">Copie du dernier relevé de notes</label>
           </div>
           <div className="mt-2">
-            <label className="form-label">Frais d’inscription acquittés</label>
+            <label className="form-label">Frais d'inscription acquittés</label>
             <select
               className="form-select"
               value={f.dossier_admin.ancien_L2_L3.frais_inscription_ok}
@@ -1542,7 +1510,7 @@ export default function StudentForm({
                   Enregistrement…
                 </>
               ) : (
-                <>Enregistrer l’étudiant</>
+                <>Enregistrer l'étudiant</>
               )}
             </button>
           </div>

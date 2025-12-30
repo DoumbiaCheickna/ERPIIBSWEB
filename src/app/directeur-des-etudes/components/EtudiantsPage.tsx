@@ -1905,22 +1905,22 @@ function StudentEditInscriptionModal({
 
         parents: {
           pere: {
-            prenom: f.parents?.pere?.prenom || '',
-            nom: f.parents?.pere?.nom || '',
-            profession: f.parents?.pere?.profession || '',
-            telephone: f.parents?.pere?.telephone || '',
+            prenom: f.parents?.pere?.prenom,
+            nom: f.parents?.pere?.nom,
+            profession: f.parents?.pere?.profession,
+            telephone: f.parents?.pere?.telephone,
           },
           mere: {
-            prenom: f.parents?.mere?.prenom || '',
-            nom: f.parents?.mere?.nom || '',
-            profession: f.parents?.mere?.profession || '',
-            telephone: f.parents?.mere?.telephone || '',
+            prenom: f.parents?.mere?.prenom,
+            nom: f.parents?.mere?.nom,
+            profession: f.parents?.mere?.profession,
+            telephone: f.parents?.mere?.telephone,
           },
           contact_urgence: {
-            relation: f.parents?.contact_urgence?.relation || '',
-            lien_autre: f.parents?.contact_urgence?.lien_autre || '',
-            adresse: f.parents?.contact_urgence?.adresse || '',
-            telephone: f.parents?.contact_urgence?.telephone || '',
+            relation: f.parents?.contact_urgence?.relation ,
+            lien_autre: f.parents?.contact_urgence?.lien_autre,
+            adresse: f.parents?.contact_urgence?.adresse,
+            telephone: f.parents?.contact_urgence?.telephone,
           },
         },
 
@@ -2053,7 +2053,7 @@ function StudentEditInscriptionModal({
                   </div>
                   <div className="col-md-3">
                     <label className="form-label">CNI/Passeport</label>
-                    <input className="form-control" value={f.cni_passeport||''} onChange={e=>setField('cni_passeport', onlyDigits(e.target.value))} />
+                    <input className="form-control" value={f.cni_passeport||''} onChange={e=>setField('cni_passeport', e.target.value)} />
                   </div>
                   <div className="col-md-3">
                     <label className="form-label">Situation matrimoniale</label>
@@ -2270,7 +2270,7 @@ function StudentEditInscriptionModal({
                     <label className="form-label">Maladies</label>
                     <input className="form-control" value={f.medical?.maladies||''} onChange={e=>setField('medical.maladies', e.target.value)} />
                   </div>
-                  <div className="col-md-3">
+                  <div className="col-md-3">  
                     <label className="form-label">Handicap</label>
                     <input className="form-control" value={f.medical?.handicap||''} onChange={e=>setField('medical.handicap', e.target.value)} />
                   </div>

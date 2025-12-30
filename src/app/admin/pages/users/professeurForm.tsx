@@ -153,12 +153,10 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
       langues: [""],
       publications: [""],
     },
-    rib: "",
     documents: {
       cv: null as File | null,
       diplomes: null as File | null,
       piece_identite: null as File | null,
-      rib: null as File | null,
     },
   });
 
@@ -406,37 +404,35 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
     if (!phoneRegexLocal.test(form.telephoneLocal))
       e.telephoneLocal = "Format attendu : 70/75/76/77/78 + 7 chiffres (ex: 771234567).";
 
-    // Situation pro
-    if (!form.statut) e.statut = "Obligatoire.";
 
-    // Disponibilités
-    if (!form.disponibilites.length) {
-      e.disponibilites = "Ajoutez au moins une disponibilité.";
-    } else {
-      form.disponibilites.forEach((d, i) => {
-        if (!d.jour) e[`disponibilites.${i}.jour`] = "Jour obligatoire.";
-        if (!timeInRange(d.debut) || !timeInRange(d.fin))
-          e[`disponibilites.${i}.plage`] = "Heures entre 08:00 et 22:00.";
-        if (d.debut && d.fin && d.debut >= d.fin)
-          e[`disponibilites.${i}.ordre`] = "Heure de début < heure de fin.";
-      });
-    }
+    // // Disponibilités
+    // if (!form.disponibilites.length) {
+    //   e.disponibilites = "Ajoutez au moins une disponibilité.";
+    // } else {
+    //   form.disponibilites.forEach((d, i) => {
+    //     if (!d.jour) e[`disponibilites.${i}.jour`] = "Jour obligatoire.";
+    //     if (!timeInRange(d.debut) || !timeInRange(d.fin))
+    //       e[`disponibilites.${i}.plage`] = "Heures entre 08:00 et 22:00.";
+    //     if (d.debut && d.fin && d.debut >= d.fin)
+    //       e[`disponibilites.${i}.ordre`] = "Heure de début < heure de fin.";
+    //   });
+    // }
 
-    // Éléments constitutifs (matières)
-    const ecs = form.elements_constitutifs.map((s) => s.trim()).filter(Boolean);
-    if (!ecs.length) e.elements_constitutifs = "Renseignez au moins un élément.";
+    // // Éléments constitutifs (matières)
+    // const ecs = form.elements_constitutifs.map((s) => s.trim()).filter(Boolean);
+    // if (!ecs.length) e.elements_constitutifs = "Renseignez au moins un élément.";
 
-    // Expérience enseignement (≥ 1 an)
-    if (!form.experience_enseignement.annees || form.experience_enseignement.annees < 1)
-      e.experience_enseignement_annees = "Au moins 1 année d’expérience.";
+    // // Expérience enseignement (≥ 1 an)
+    // if (!form.experience_enseignement.annees || form.experience_enseignement.annees < 1)
+    //   e.experience_enseignement_annees = "Au moins 1 année d’expérience.";
 
-    // Diplômes (au moins un intitule + niveau)
-    const dipOK = form.diplomes.some((d) => d.intitule.trim() && d.niveau.trim());
-    if (!dipOK) e.diplomes = "Ajoutez au moins un diplôme (intitulé et niveau).";
+    // // Diplômes (au moins un intitule + niveau)
+    // const dipOK = form.diplomes.some((d) => d.intitule.trim() && d.niveau.trim());
+    // if (!dipOK) e.diplomes = "Ajoutez au moins un diplôme (intitulé et niveau).";
 
-    // Niveaux d’enseignement
-    const nivs = form.niveaux_enseignement.map((s) => s.trim()).filter(Boolean);
-    if (!nivs.length) e.niveaux_enseignement = "Sélectionnez au moins un niveau.";
+    // // Niveaux d’enseignement
+    // const nivs = form.niveaux_enseignement.map((s) => s.trim()).filter(Boolean);
+    // if (!nivs.length) e.niveaux_enseignement = "Sélectionnez au moins un niveau.";
 
     // Fichiers (type/poids) — uniquement en création, sinon optionnels
     if (mode === "create") {
@@ -446,8 +442,6 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
       if (diplomeDocErr) e.documents_diplomes = diplomeDocErr;
       const idErr = validateFile(form.documents.piece_identite, ["pdf", "jpeg", "png", "jpg"]);
       if (idErr) e.documents_piece_identite = idErr;
-      const ribErr = validateFile(form.documents.rib, ["pdf", "jpeg", "png", "jpg"]);
-      if (ribErr) e.documents_rib = ribErr;
     }
 
     setErrors(e);
@@ -476,7 +470,6 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
       cv: form.documents.cv ? await uploadFile(form.documents.cv) : null,
       diplomes: form.documents.diplomes ? await uploadFile(form.documents.diplomes) : null,
       piece_identite: form.documents.piece_identite ? await uploadFile(form.documents.piece_identite) : null,
-      rib: form.documents.rib ? await uploadFile(form.documents.rib) : null,
     };
 
     await addDoc(collection(db, "users"), {
@@ -519,7 +512,6 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
         langues: form.competences.langues.map(sanitize).filter(Boolean),
         publications: form.competences.publications.map(sanitize).filter(Boolean),
       },
-      rib: sanitize(form.rib || ""),
       documents: fileUrls,
       auth_uid: authUid,
       first_login: "1",
@@ -528,6 +520,7 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
+
   };
 
   const updateUserDoc = async () => {
@@ -589,7 +582,6 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
           langues: form.competences.langues.map(sanitize).filter(Boolean),
           publications: form.competences.publications.map(sanitize).filter(Boolean),
         },
-        rib: sanitize(form.rib || ""),
         updatedAt: serverTimestamp(),
       },
       { merge: true }
@@ -945,10 +937,10 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
                     <div className="row g-3">
                       <div className="col-md-4">
                         <label className="form-label">
-                          Statut <span className="text-danger">*</span>
+                          Statut
                         </label>
                         <select
-                          className={`form-select ${errors.statut ? "is-invalid" : ""}`}
+                          className="form-select"
                           value={form.statut}
                           onChange={(e) => setField("statut", e.target.value)}
                         >
@@ -958,7 +950,6 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
                           <option value="Temps partiel">Temps partiel</option>
                           <option value="Temps plein">Temps plein</option>
                         </select>
-                        {errors.statut && <div className="invalid-feedback">{errors.statut}</div>}
                       </div>
                       <div className="col-md-4">
                         <label className="form-label">Fonction principale</label>
@@ -974,9 +965,8 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
                     {/* Disponibilités */}
                     <div className="mt-3">
                       <h6 className="fw-bold">
-                        Disponibilités (08h–22h) <span className="text-danger">*</span>
+                        Disponibilités (08h–22h)
                       </h6>
-                      {errors.disponibilites && <div className="text-danger small mb-2">{errors.disponibilites}</div>}
                       {form.disponibilites.map((d, i) => (
                         <div key={i} className="row g-2 align-items-end mb-2">
                           <div className="col-md-3">
@@ -993,17 +983,13 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
                                 </option>
                               ))}
                             </select>
-                            {errors[`disponibilites.${i}.jour`] && (
-                              <div className="invalid-feedback">{errors[`disponibilites.${i}.jour`]}</div>
-                            )}
+
                           </div>
                           <div className="col-md-3">
                             <label className="form-label">Début</label>
                             <input
                               type="time"
-                              className={`form-control ${
-                                errors[`disponibilites.${i}.plage`] || errors[`disponibilites.${i}.ordre`] ? "is-invalid" : ""
-                              }`}
+                              className="form-control"
                               value={d.debut}
                               onChange={(e) => changeDisponibilite(i, "debut", e.target.value)}
                               min="08:00"
@@ -1014,19 +1000,12 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
                             <label className="form-label">Fin</label>
                             <input
                               type="time"
-                              className={`form-control ${
-                                errors[`disponibilites.${i}.plage`] || errors[`disponibilites.${i}.ordre`] ? "is-invalid" : ""
-                              }`}
+                              className="form-control"
                               value={d.fin}
                               onChange={(e) => changeDisponibilite(i, "fin", e.target.value)}
                               min="08:00"
                               max="22:00"
                             />
-                            {(errors[`disponibilites.${i}.plage`] || errors[`disponibilites.${i}.ordre`]) && (
-                              <div className="invalid-feedback d-block">
-                                {errors[`disponibilites.${i}.plage`] || errors[`disponibilites.${i}.ordre`]}
-                              </div>
-                            )}
                           </div>
                           <div className="col-md-3 d-flex gap-2">
                             <button type="button" className="btn btn-outline-danger" onClick={() => removeDisponibilite(i)}>
@@ -1041,14 +1020,11 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
                       </button>
                     </div>
 
-                    {/* Éléments constitutifs (matières) */}
                     <div className="mt-3">
                       <h6 className="fw-bold">
-                        Éléments constitutifs (Matières) <span className="text-danger">*</span>
+                        Éléments constitutifs (Matières)
                       </h6>
-                      {errors.elements_constitutifs && (
-                        <div className="text-danger small mb-2">{errors.elements_constitutifs}</div>
-                      )}
+
                       {form.elements_constitutifs.map((ec, i) => (
                         <div key={i} className="d-flex mb-2">
                           <input
@@ -1073,14 +1049,11 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
                       </button>
                     </div>
 
-                    {/* Expérience d’enseignement */}
                     <div className="mt-3">
                       <h6 className="fw-bold">
-                        Expérience d’enseignement <span className="text-danger">*</span>
+                        Expérience d’enseignement
                       </h6>
-                      {errors.experience_enseignement_annees && (
-                        <div className="text-danger small mb-2">{errors.experience_enseignement_annees}</div>
-                      )}
+
                       <div className="row g-2">
                         <div className="col-md-4">
                           <label className="form-label">Années d’expérience</label>
@@ -1123,9 +1096,8 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
                     {/* Diplômes */}
                     <div className="mt-3">
                       <h6 className="fw-bold">
-                        Diplômes et formations <span className="text-danger">*</span>
+                        Diplômes et formations 
                       </h6>
-                      {errors.diplomes && <div className="text-danger small mb-2">{errors.diplomes}</div>}
                       {form.diplomes.map((d, idx) => (
                         <div key={idx} className="row g-2 mb-2">
                           <div className="col-md-4">
@@ -1178,11 +1150,9 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
                     {/* Niveaux d’enseignement */}
                     <div className="mt-3">
                       <h6 className="fw-bold">
-                        Niveaux d’enseignement <span className="text-danger">*</span>
+                        Niveaux d’enseignement 
                       </h6>
-                      {errors.niveaux_enseignement && (
-                        <div className="text-danger small mb-2">{errors.niveaux_enseignement}</div>
-                      )}
+
                       {form.niveaux_enseignement.map((niveau, i) => (
                         <div key={i} className="d-flex mb-2">
                           <select
@@ -1352,22 +1322,8 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
 
                     {/* RIB & Documents */}
                     <div className="mt-3">
-                      <h6 className="fw-bold">RIB & Documents</h6>
+                      <h6 className="fw-bold">Documents</h6>
                       <div className="row g-3">
-                        <div className="col-md-6">
-                          <label className="form-label">RIB bancaire</label>
-                          <input
-                            className="form-control"
-                            value={form.rib}
-                            onChange={(e) => setField("rib", e.target.value)}
-                            placeholder="IBAN / RIB"
-                          />
-                        </div>
-                        <div className="col-md-6 d-flex align-items-end text-muted small">
-                          {mode === "create"
-                            ? "(Optionnel) Vous pouvez aussi joindre le RIB en document."
-                            : "Pour modifier les documents, ajoutez-les ci-dessous (ils ne sont pas obligatoires)."}
-                        </div>
 
                         {/* En édition, ces fichiers sont optionnels et remplacent s’ils sont fournis */}
                         <div className="col-md-3">
@@ -1406,17 +1362,6 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
                             <div className="invalid-feedback d-block">{errors.documents_piece_identite}</div>
                           )}
                           <div className="mt-1">{preview(form.documents.piece_identite)}</div>
-                        </div>
-                        <div className="col-md-3">
-                          <label className="form-label">RIB (PDF/JPG/PNG)</label>
-                          <input
-                            type="file"
-                            className={`form-control ${errors.documents_rib ? "is-invalid" : ""}`}
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            onChange={(e) => setDocField("rib", e.target.files?.[0] || null)}
-                          />
-                          {errors.documents_rib && <div className="invalid-feedback d-block">{errors.documents_rib}</div>}
-                          <div className="mt-1">{preview(form.documents.rib)}</div>
                         </div>
                       </div>
                     </div>
