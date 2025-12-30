@@ -520,14 +520,13 @@ export default function ProfesseurForm({ roles, mode, docId, onClose, onSaved }:
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
-    
+
 
   };
 
   const updateUserDoc = async () => {
     if (!docId) throw new Error("docId manquant pour l’édition.");
 
-    // Charger l’existant pour savoir si les champs d’année sont déjà là
     const snap = await getDoc(doc(db, "users", docId));
     const cur = snap.exists() ? (snap.data() as any) : {};
 
