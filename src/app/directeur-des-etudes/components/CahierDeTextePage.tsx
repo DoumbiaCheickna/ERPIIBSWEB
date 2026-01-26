@@ -404,6 +404,8 @@ export default function CahierDeTextePage() {
           .entries-grid {
             grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
           }
+
+          
         }
 
         @media (min-width: 1600px) {
