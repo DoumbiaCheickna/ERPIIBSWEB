@@ -27,7 +27,9 @@ type MainItem =
   | "Professeurs"
   | "Filières"
   | "Personnel"
-  | "Evaluations";
+  | "Evaluations"
+  | "CahierDeTexte";
+
 
 const MAIN_MENU: MainItem[] = [
   "Accueil",
@@ -38,7 +40,9 @@ const MAIN_MENU: MainItem[] = [
   "Filières",
   "Personnel",
   "Evaluations",
+  "CahierDeTexte",
 ];
+
 
 const ICONS: Record<MainItem, string> = {
   Accueil: "bi-house-door",
@@ -46,9 +50,10 @@ const ICONS: Record<MainItem, string> = {
   EmargementsProfesseurs: "bi-clipboard-data",
   Etudiants: "bi-people",
   Professeurs: "bi-person-badge",
-  "Filières": "bi-layers",
+  Filières: "bi-layers",
   Personnel: "bi-person-gear",
   Evaluations: "bi-bar-chart",
+  CahierDeTexte: "bi-journal-text",
 };
 
 const LABELS: Record<MainItem, React.ReactNode> = {
@@ -60,6 +65,7 @@ const LABELS: Record<MainItem, React.ReactNode> = {
   Filières: "Filières",
   Personnel: "Personnel",
   Evaluations: "Évaluations",
+  CahierDeTexte: "Cahier de texte",
 };
 
 /* ===================== PROFIL ===================== */
@@ -96,7 +102,7 @@ export default function AdminNavbar({
 }: {
   active: MainItem | null;
   onChange: (item: MainItem) => void;
-  allowedTabs?: string[];
+  allowedTabs?: MainItem[];
 }) {
   const router = useRouter();
 
@@ -377,8 +383,9 @@ export default function AdminNavbar({
   );
 
   const TABS: MainItem[] = allowedTabs.length
-    ? (MAIN_MENU.filter((t) => allowedTabs.includes(t)) as MainItem[])
+    ? MAIN_MENU.filter((t) => allowedTabs.includes(t))
     : MAIN_MENU;
+
 
   React.useEffect(() => {
     if (active && !TABS.includes(active)) onChange("Accueil");
@@ -387,9 +394,17 @@ export default function AdminNavbar({
 
   React.useEffect(() => {
     const handler = (e: Event) => {
-      const tab = (e as CustomEvent).detail as
-        | "Accueil" | "Etudiants" | "Professeurs" | "Filières"
-        | "Personnel" | "Evaluations" | "EmargementsEtudiants" | "EmargementsProfesseurs";
+    const tab = (e as CustomEvent).detail as
+      | "Accueil"
+      | "Etudiants"
+      | "Professeurs"
+      | "Filières"
+      | "Personnel"
+      | "Evaluations"
+      | "EmargementsEtudiants"
+      | "EmargementsProfesseurs"
+      | "CahierDeTexte";
+
       if (tab) onChange(tab);
     };
     window.addEventListener("iibs:navigate-main-tab", handler as any);
@@ -538,6 +553,10 @@ export default function AdminNavbar({
                           <div className="col-md-6">
                             <label className="form-label">Email</label>
                             <input className="form-control" value={userInfo.email} readOnly />
+                          </div>
+                          <div className="col-12">
+                            <label className="form-label">Mon ID</label>
+                            <input className="form-control" value={userInfo.docId} readOnly />
                           </div>
                         </div>
 

@@ -1,7 +1,11 @@
 // src/lib/firebaseAdmin.ts
 import * as admin from 'firebase-admin';
 
-if (!admin.apps.length) {
+let app: admin.app.App | null = null;
+
+function initAdmin() {
+  if (app) return app;
+
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
@@ -10,15 +14,25 @@ if (!admin.apps.length) {
     throw new Error('Firebase Admin env vars manquantes');
   }
 
-  admin.initializeApp({
+  app = admin.initializeApp({
     credential: admin.credential.cert({
       projectId,
       clientEmail,
       privateKey,
     }),
   });
+
+  return app;
 }
 
-export const adminAuth = admin.auth();
-export const adminDb = admin.firestore();
+export function getAdminAuth() {
+  initAdmin();
+  return admin.auth();
+}
+
+export function getAdminDb() {
+  initAdmin();
+  return admin.firestore();
+}
+
 export const adminFieldValue = admin.firestore.FieldValue;

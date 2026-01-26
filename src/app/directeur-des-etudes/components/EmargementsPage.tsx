@@ -1625,7 +1625,7 @@ function BilanClasse({ classe, yearId, yearLabel }:{
       const e = endOfDay(fromISODate(dateEnd));
 
       // 1) Sous-collec (si existe)
-      let docs: Array<SeanceDoc & Record<string, any>> = [];
+      const docs: Array<SeanceDoc & Record<string, any>> = [];
       try {
         const subSnap = await getDocs(
           query(

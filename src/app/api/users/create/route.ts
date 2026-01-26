@@ -3,7 +3,7 @@
 export const runtime = 'nodejs';
 
 import { NextResponse } from 'next/server';
-import { adminAuth, adminDb, adminFieldValue } from '@/lib/firebaseAdmin';
+import { getAdminAuth, getAdminDb, adminFieldValue } from '@/lib/firebaseAdmin';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 const sanitize = (v: any) =>
@@ -14,6 +14,8 @@ const sanitize = (v: any) =>
 
 export async function POST(req: Request) {
   try {
+    const adminAuth = getAdminAuth();
+    const adminDb = getAdminDb();
     const body = await req.json();
 
     const {

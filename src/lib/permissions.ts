@@ -7,10 +7,12 @@ export type TabKey =
   | "Professeurs"
   | "Filières"
   | "Personnel"
-  | "Evaluations";
+  | "Evaluations"
+  | "CahierDeTexte";
 
 export const ALL_TABS: TabKey[] = [
-  "Accueil","EmargementsEtudiants","EmargementsProfesseurs","Etudiants","Professeurs","Filières","Personnel","Evaluations"
+  "Accueil","EmargementsEtudiants","EmargementsProfesseurs","Etudiants",
+  "Professeurs","Filières","Personnel","Evaluations", "CahierDeTexte"
 ];
 
 // Normalise le rôle depuis localStorage (ex: "Assistant Directeur des Etudes")

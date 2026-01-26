@@ -1,4 +1,3 @@
-// src/app/directeur-des-etudes/page.tsx
 "use client";
 
 import React from "react";
@@ -12,6 +11,8 @@ import EmargementsPage from "./components/EmargementsPage";
 import PersonnelPage from "./components/PersonnelPage";
 import { visibleTabsForRole } from "@/lib/permissions";
 import EmargementsProfsPage from "./components/EmargementsProfsPage";
+import CahierDeTextePage from "./components/CahierDeTextePage";
+
 
 
 type MainItem =
@@ -23,7 +24,9 @@ type MainItem =
   | "Filières"
   | "Personnel"
   | "Evaluations"
+  | "CahierDeTexte"
   | null;
+
 
 export default function DirecteurHomePage() {
   const [roleLabel, setRoleLabel] = React.useState<string>("");
@@ -35,12 +38,19 @@ export default function DirecteurHomePage() {
   }, []);
 
   // NEW: calcule la liste d’onglets autorisés selon le rôle
-  const allowedTabs = React.useMemo(() => visibleTabsForRole(roleLabel), [roleLabel]);
+  const allowedTabs: MainItem[] = React.useMemo(
+    () => visibleTabsForRole(roleLabel) as MainItem[],
+    [roleLabel]
+  );
+
+  console.log("Allowed tabs for role", roleLabel, ":", allowedTabs);
+
 
   // NEW: si un onglet devient masqué, on retombe sur "Accueil"
   React.useEffect(() => {
     if (active && !allowedTabs.includes(active)) setActive("Accueil");
   }, [allowedTabs, active]);
+
 
   // Tu peux réactiver le secondary menu pour d’autres onglets si besoin
   const HIDE_SECONDARY: Exclude<MainItem, null>[] = [
@@ -58,7 +68,7 @@ export default function DirecteurHomePage() {
     <div className="page-root">
       {/* Topbar + Sidebar (dans AdminNavbar) */}
       <AdminNavbar active={active} onChange={setActive} allowedTabs={allowedTabs} />
-
+    
       {/* Bande d’arrière-plan + conteneur centré */}
       <div className="content-container">
         <div className="content-card">
@@ -66,37 +76,39 @@ export default function DirecteurHomePage() {
           {showSecondary && <SecondaryMenu active={active} />}
 
           {/* Zone principale */}
-          <main className="main-area">
-            {/* 👇 Ton contenu existant */}
-            {active === "Accueil" && (
-  <HomeDashboard onOpenEtudiants={() => setActive("Etudiants")} />
-)}
-            {active === "Professeurs" && <ProfessorsPage />}
-            {active === "Filières" && <FilieresPage />}
-            {active === "Etudiants" && <EtudiantsPage />}
-            {active === "EmargementsEtudiants" && <EmargementsPage />}
-            {active === "Personnel" && <PersonnelPage />}
-            {active === "EmargementsProfesseurs" && <EmargementsProfsPage />}
+        <main className="main-area">
+          {active === "Accueil" && <HomeDashboard onOpenEtudiants={() => setActive("Etudiants")} />}
+          {active === "Professeurs" && <ProfessorsPage />}
+          {active === "Filières" && <FilieresPage />}
+          {active === "Etudiants" && <EtudiantsPage />}
+          {active === "EmargementsEtudiants" && <EmargementsPage />}
+          {active === "Personnel" && <PersonnelPage />}
+          {active === "EmargementsProfesseurs" && <EmargementsProfsPage />}
+          {active === "CahierDeTexte" && <CahierDeTextePage />}
 
-            {/* Placeholder autres onglets */}
-            {active &&
-              active !== "Accueil" &&
-              active !== "Professeurs" &&
-              active !== "Filières" &&
-              active !== "Etudiants" &&
-              active !== "EmargementsEtudiants" &&
-              active !== "EmargementsProfesseurs" &&
-              active !== "Personnel" && (
-                <div className="card shadow-sm">
-                  <div className="card-body">
-                    <h5 className="card-title mb-3">{active}</h5>
-                    <p className="text-muted mb-0">
-                      Contenu placeholder pour <strong>{active}</strong>
-                    </p>
-                  </div>
+          {/* Placeholder pour les onglets futurs */}
+          {active &&
+            ![
+              "Accueil",
+              "Professeurs",
+              "Filières",
+              "Etudiants",
+              "EmargementsEtudiants",
+              "EmargementsProfesseurs",
+              "Personnel",
+              "CahierDeTexte",
+            ].includes(active) && (
+              <div className="card shadow-sm">
+                <div className="card-body">
+                  <h5 className="card-title mb-3">{active}</h5>
+                  <p className="text-muted mb-0">
+                    Contenu placeholder pour <strong>{active}</strong>
+                  </p>
                 </div>
-              )}
-          </main>
+              </div>
+            )}
+        </main>
+
         </div>
       </div>
 
