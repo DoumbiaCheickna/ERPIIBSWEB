@@ -622,7 +622,7 @@ export default function StudentForm({
 
         <div className="col-md-4">
           <label className="form-label">
-            Nom d'utilisateur<span className="text-danger">*</span>
+            Nom dutilisateur<span className="text-danger">*</span>
           </label>
           <div className="input-group">
             <input
@@ -792,7 +792,7 @@ export default function StudentForm({
         </div>
 
         <div className="col-md-3">
-          <label className="form-label">Nombre d'enfants</label>
+          <label className="form-label">Nombre d&apos;enfants</label>
           <input
             type="number"
             min={0}
@@ -890,7 +890,7 @@ export default function StudentForm({
 
         <div className="col-md-3">
           <label className="form-label">
-            Type d'inscription<span className="text-danger">*</span>
+            Type d&apos;inscription<span className="text-danger">*</span>
           </label>
           <select
             className={`form-select ${errors['type_inscription'] ? 'is-invalid' : ''}`}
@@ -944,7 +944,7 @@ export default function StudentForm({
 
         <div className="col-md-4">
           <label className="form-label">
-            Année d'obtention<span className="text-danger">*</span>
+            Année d&apos;obtention<span className="text-danger">*</span>
           </label>
           <input
             className={`form-control ${errors['diplome_obtenu.annee_obtention'] ? 'is-invalid' : ''}`}
@@ -1140,7 +1140,7 @@ export default function StudentForm({
         </div>
 
         <div className="col-12 mt-2">
-          <h6 className="fw-bold">Personne à contacter en cas d'urgence</h6>
+          <h6 className="fw-bold">Personne à contacter en cas d&apos;urgence</h6>
         </div>
 
         <div className="col-md-3">
@@ -1237,10 +1237,10 @@ export default function StudentForm({
               checked={f.dossier_admin.nouveau_L1.piece_identite}
               onChange={(e) => setField('dossier_admin.nouveau_L1.piece_identite', e.target.checked)}
             />
-            <label className="form-check-label">Pièce d'identité</label>
+            <label className="form-check-label">Pièce d&apos;identité</label>
           </div>
           <div className="mt-2">
-            <label className="form-label">Frais d'inscription acquittés</label>
+            <label className="form-label">Frais d&apos;inscription acquittés</label>
             <select
               className="form-select"
               value={f.dossier_admin.nouveau_L1.frais_inscription_ok}
@@ -1295,10 +1295,10 @@ export default function StudentForm({
               checked={f.dossier_admin.nouveau_L2_L3.piece_identite}
               onChange={(e) => setField('dossier_admin.nouveau_L2_L3.piece_identite', e.target.checked)}
             />
-            <label className="form-check-label">Pièce d'identité</label>
+            <label className="form-check-label">Pièce d&apos;identité</label>
           </div>
           <div className="mt-2">
-            <label className="form-label">Frais d'inscription acquittés</label>
+            <label className="form-label">Frais d&apos;inscription acquittés</label>
             <select
               className="form-select"
               value={f.dossier_admin.nouveau_L2_L3.frais_inscription_ok}
@@ -1338,7 +1338,7 @@ export default function StudentForm({
             <label className="form-check-label">Copie du dernier relevé de notes</label>
           </div>
           <div className="mt-2">
-            <label className="form-label">Frais d'inscription acquittés</label>
+            <label className="form-label">Frais d&apos;inscription acquittés</label>
             <select
               className="form-select"
               value={f.dossier_admin.ancien_L2_L3.frais_inscription_ok}
@@ -1510,7 +1510,7 @@ export default function StudentForm({
                   Enregistrement…
                 </>
               ) : (
-                <>Enregistrer l'étudiant</>
+                <>Enregistrer l&apos;étudiant</>
               )}
             </button>
           </div>
